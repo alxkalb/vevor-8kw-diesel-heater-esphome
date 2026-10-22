@@ -132,6 +132,18 @@ An alternative fault detection exists in the firmware: when an operation ends (l
 
 What this adds to the picture: the cool-down seen here as one phase (low byte `C0`) is a sequence of three named stages there, and an independent source describes the level nibble and the supply voltage the same way. What it does not settle: the fan/pump/glow-plug bit meanings and the E-number hint stay hypotheses here. Their README also lists a "ready" status word (`0xFA6C`) that was not seen in the captures of this project.
 
+### What others report (second-hand, not verified here)
+
+Sources: the [vevor_pwm](https://github.com/kellerman/vevor_pwm) README and source, and the [Home Assistant forum thread](https://community.home-assistant.io/t/vevor-diesel-heater-control-development-in-progress/832159) (posts by kellerman, Emvace and Cajda91, 2026).
+
+- **Polarity convention:** vevor_pwm decodes a bit by the width of the GPIO-low segment, which through the inverting level shifter is the bus-*high* time: about 4 ms = bit 1, about 8 ms = bit 0. In this document's convention that is `0` and `1`. The signals on the wire are the same; only the bit values are labelled the other way round.
+- **Bit cell:** their transmit code uses about 12.1 ms (4.0 + 8.1 ms and 8.0 + 4.1 ms). This project sends 12 ms cells. Both work.
+- **Pre-pulse and silence:** their receiver expects a short pre-pulse (about 0.8–3 ms) before the 30 ms start pulse of a 16-bit frame, and resets after more than about 80 ms without a complete frame. Not checked separately here.
+- **A different unit:** a CY-32 heater (Emvace, Cajda91) shows the idle word `0xDFF3` where the first vevor_pwm unit shows `0x9FF3`. Inverted that is `200C` instead of `600C`: the same voltage byte, but bit `0x40` of the high byte differs. Changing the expected pattern from `9Fxx` to `DFxx` made receiving work there. **This firmware requires high byte `0x60` for standby** and would not recognise such a unit (state "unknown", ON ignored).
+- **Fault word on another unit:** kellerman mentions `7FF3` as a fault word (inverted: `800C`) and `9FF3` as idle. Here the empty-tank fault ended in `8009`. Whether that is a different fault, a different model or a different reading is unknown. It shows that the low byte of a fault standby is not necessarily a plain error number.
+- **Level commands:** with the vevor_pwm library the power command cycles 6 → 1 → 6 (reported in the thread as unlike the original controller). Here `A3` and `A4` are separate level up and level down frames.
+- **Start command on the CY-32:** Cajda91 reports getting the heater to run by changing command bits 4 and 6 (no details given). Command bit meanings can differ between controller variants.
+
 ## Differences to the UART projects
 
 | | this heater | zatakon/esphome-vevor-heater (XMZ-D2) |

@@ -18,7 +18,7 @@ Wahrscheinlich **nur, wenn sie so aussieht wie diese**. Gebaut und getestet wurd
 
 Diese Heizung spricht **nicht** das 4800-Baud-UART-Protokoll (oder 25000 Baud), das andere Open-Source-Projekte beschreiben. Sie benutzt einen langsamen Pulscode mit 12-ms-Bitzellen, siehe [docs/protocol/protocol.de.md](docs/protocol/protocol.de.md). Bei einer anderen Heizung zeigt der Raw-Capture-Helfer in [`esphome/helpers/`](esphome/helpers/raw-capture.yaml) in wenigen Minuten, ob dasselbe Protokoll läuft. Berichte zu anderen Modellen sind sehr willkommen (siehe *Mitmachen*).
 
-Die gleiche Familie von Pulscode-Heizungen beschreiben auch andere: [kellerman/vevor_pwm](https://github.com/kellerman/vevor_pwm) dokumentiert 8-Bit-Befehle und 16-Bit-Statuswörter mit etwa 12-ms-Zelle für „Vevor PWM“-Heizungen (im [Home-Assistant-Forum](https://community.home-assistant.io/t/vevor-diesel-heater-control-development-in-progress/832159) und in [zatakon/esphome-vevor-heater#2](https://github.com/zatakon/esphome-vevor-heater/issues/2) werden ZM8001 und eine Sunster 8 kW genannt). Ihre Werte stimmen mit denen dieses Projekts überein, wenn man alle Bits invertiert, siehe [Vergleich](docs/protocol/protocol.de.md#vergleich-mit-kellermanvevor_pwm). Diese Firmware wurde unabhängig entwickelt und an diesen Heizungen **nicht** getestet.
+Die gleiche Familie von Pulscode-Heizungen beschreiben auch andere: [kellerman/vevor_pwm](https://github.com/kellerman/vevor_pwm) dokumentiert 8-Bit-Befehle und 16-Bit-Statuswörter mit etwa 12-ms-Zelle für „Vevor PWM“-Heizungen (im [Home-Assistant-Forum](https://community.home-assistant.io/t/vevor-diesel-heater-control-development-in-progress/832159) und in [zatakon/esphome-vevor-heater#2](https://github.com/zatakon/esphome-vevor-heater/issues/2) werden ZM8001 und eine Sunster 8 kW genannt). Ihre Werte stimmen mit denen dieses Projekts überein, wenn man alle Bits invertiert, siehe [Vergleich](docs/protocol/protocol.de.md#vergleich-mit-kellermanvevor_pwm). Diese Firmware wurde unabhängig entwickelt und an diesen Heizungen **nicht** getestet. Die Varianten unterscheiden sich in Details: Ein CY-32-Gerät in diesem Thread meldet ein anderes Leerlaufwort (`DFxx`, also oberes Byte `0x20` nach Invertierung), und diese Firmware akzeptiert im Standby nur `0x60`.
 
 ## Funktionen
 
@@ -95,6 +95,7 @@ Was verifiziert, was Hypothese und was ungetestet ist: **[docs/status/status.de.
 - Ein Gerät getestet. Keine Garantie für andere VEVOR- oder „China-Diesel-Heizung“-Modelle.
 - Fällt ESP, WLAN oder Home Assistant aus, während die Heizung läuft, läuft sie weiter, bis du sie am Controller oder an der Fernbedienung ausschaltest.
 - Die „E-xx“-Nummer im Fehlertext stammt aus einer einzigen Beobachtung (E-08, Tank leer). Andere Codes sind nicht verifiziert.
+- Standby wird nur mit dem oberen Byte `0x60` im B-Frame erkannt. Controller-Varianten, die etwas anderes melden (siehe Protokoll-Doku), brauchen Code-Änderungen.
 - Ein/Aus ist auf dem Bus ein Umschalt-Befehl. Die Firmware sendet ihn deshalb nur, wenn der beobachtete Zustand passt.
 
 ## Mitmachen

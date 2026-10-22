@@ -132,6 +132,18 @@ Zusätzlich gibt es in der Firmware eine zweite Störungserkennung: Endet ein Be
 
 Was das zum Gesamtbild beiträgt: Das Abkühlen, das hier als eine Phase gesehen wird (unteres Byte `C0`), ist dort eine Folge aus drei benannten Stufen, und eine unabhängige Quelle beschreibt das Stufen-Nibble und die Versorgungsspannung genauso. Was es nicht klärt: Die Bedeutung der Lüfter-/Pumpen-/Glühkerzen-Bits und der Hinweis zur E-Nummer bleiben Hypothesen. Seine README nennt außerdem ein „Ready“-Statuswort (`0xFA6C`), das in den Captures dieses Projekts nicht gesehen wurde.
 
+### Was andere berichten (aus zweiter Hand, hier nicht verifiziert)
+
+Quellen: README und Quelltext von [vevor_pwm](https://github.com/kellerman/vevor_pwm) sowie der [Home-Assistant-Forumthread](https://community.home-assistant.io/t/vevor-diesel-heater-control-development-in-progress/832159) (Beiträge von kellerman, Emvace und Cajda91, 2026).
+
+- **Polaritätskonvention:** vevor_pwm dekodiert ein Bit nach der Breite des GPIO-Low-Abschnitts, der über den invertierenden Pegelwandler der Bus-*High*-Zeit entspricht: etwa 4 ms = Bit 1, etwa 8 ms = Bit 0. In der Konvention dieses Dokuments sind das `0` und `1`. Die Signale auf der Leitung sind dieselben, nur die Bitwerte sind andersherum benannt.
+- **Bitzelle:** Ihr Sendecode nutzt etwa 12,1 ms (4,0 + 8,1 ms und 8,0 + 4,1 ms). Dieses Projekt sendet 12-ms-Zellen. Beides funktioniert.
+- **Vorpuls und Ruhe:** Ihr Empfänger erwartet vor dem 30-ms-Startpuls eines 16-Bit-Frames einen kurzen Vorpuls (etwa 0,8–3 ms) und setzt sich nach mehr als etwa 80 ms ohne vollständigen Frame zurück. Hier nicht separat geprüft.
+- **Ein anderes Gerät:** Eine CY-32-Heizung (Emvace, Cajda91) zeigt im Leerlauf `0xDFF3`, wo das erste vevor_pwm-Gerät `0x9FF3` zeigt. Invertiert ist das `200C` statt `600C`: dasselbe Spannungsbyte, aber Bit `0x40` des oberen Bytes ist anders. Das erwartete Muster von `9Fxx` auf `DFxx` zu ändern, ließ dort den Empfang funktionieren. **Diese Firmware verlangt im Standby das obere Byte `0x60`** und würde ein solches Gerät nicht erkennen (Zustand „unbekannt“, EIN wird ignoriert).
+- **Fehlerwort an einem anderen Gerät:** kellerman nennt `7FF3` als Fehlerwort (invertiert: `800C`) und `9FF3` als Leerlauf. Hier endete die Störung „Tank leer“ in `8009`. Ob das eine andere Störung, ein anderes Modell oder eine andere Auslesung ist, ist unbekannt. Es zeigt, dass das untere Byte eines Fehler-Standbys nicht zwingend eine einfache Fehlernummer ist.
+- **Stufenbefehle:** Mit der vevor_pwm-Bibliothek läuft der Leistungsbefehl zyklisch 6 → 1 → 6 (im Thread als anders als beim Originalcontroller beschrieben). Hier sind `A3` und `A4` getrennte Frames für Stufe hoch und runter.
+- **Startbefehl an der CY-32:** Cajda91 berichtet, die Heizung zum Laufen gebracht zu haben, indem er die Befehlsbits 4 und 6 änderte (ohne Details). Die Bedeutung der Befehlsbits kann sich zwischen Controller-Varianten unterscheiden.
+
 ## Unterschiede zu den UART-Projekten
 
 | | diese Heizung | zatakon/esphome-vevor-heater (XMZ-D2) |

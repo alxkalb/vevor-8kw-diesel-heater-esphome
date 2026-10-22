@@ -29,7 +29,7 @@ State of this document: first publication. **One heater unit** (VEVOR 12 V, "8 k
 |---|---|
 | Hi-byte bits `0x08` fan, `0x04` pump, `0x01` glow plug | fits all captures; no direct measurement of the pump or the plug |
 | Names of the start phases (Fan start-up, Preheating, Ignition, Running) | derived from the bit pattern above |
-| E-number = (low byte & `0x3F`) − 1 | one data point (E08 ↔ value 9). Other numbers shown as `E-xx (?)` are guesses |
+| E-number = (low byte & `0x3F`) − 1 | one data point (E08 ↔ value 9). Other numbers shown as `E-xx (?)` are guesses. A fault word reported for another unit (`7FF3`, inverted `800C`) does not fit this formula, see the [protocol doc](../protocol/protocol.md#what-others-report-second-hand-not-verified-here) |
 | `C0` in the low byte = cool-down | seen in all stops and in the fault cool-down, but not with every possible state |
 | Integer volts in the low byte of `60xx` | only 12/13 seen; the exact scaling is not known. The [vevor_pwm](https://github.com/kellerman/vevor_pwm) README (compared in the [protocol doc](../protocol/protocol.md#comparison-with-kellermanvevor_pwm)) describes the standby word as carrying the battery voltage, which fits |
 | Level = low byte − `0x3F`; cool-down in several stages; error range `0x8___` | consistent with the same README (all bits inverted); not tested on their hardware |
@@ -40,7 +40,7 @@ State of this document: first publication. **One heater unit** (VEVOR 12 V, "8 k
 - Long runs at levels 1 and 2; runs in cold weather; behaviour at an unstable 12 V supply.
 - What happens when the ESP32 reboots, Wi-Fi or Home Assistant fail **during** a run (expected: the heater keeps running; the firmware decodes the state again after the next B frame; not tested).
 - Long-term reliability (weeks of operation, e.g. memory or timing drift in the ESP32).
-- Other VEVOR models and other controller versions.
+- Other VEVOR models and other controller versions. At least one reported variant (CY-32, idle word `DFxx`) would not be recognised by the standby check.
 - `esphome compile` of the English variant. In the authoring environment only `esphome config` (validation) could be run. The logic ran on the hardware in the German-named variant [`vevor-8kw-heater.de.yaml`](../../esphome/vevor-8kw-heater.de.yaml); the English file only renames entities/strings and adds comments (mechanically compared).
 
 ## Known weaknesses of the approach

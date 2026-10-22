@@ -29,7 +29,7 @@ Stand dieses Dokuments: Erstveröffentlichung. **Ein Heizungsgerät** (VEVOR 12 
 |---|---|
 | Bits im oberen Byte: `0x08` Lüfter, `0x04` Pumpe, `0x01` Glühkerze | passt zu allen Captures; keine direkte Messung von Pumpe oder Kerze |
 | Namen der Startphasen (Anlauf, Vorglühen, Zünden, Läuft) | aus dem Bitmuster oben abgeleitet |
-| E-Nummer = (unteres Byte & `0x3F`) − 1 | ein Datenpunkt (E08 ↔ Wert 9). Andere als `E-xx (?)` gezeigte Nummern sind Vermutungen |
+| E-Nummer = (unteres Byte & `0x3F`) − 1 | ein Datenpunkt (E08 ↔ Wert 9). Andere als `E-xx (?)` gezeigte Nummern sind Vermutungen. Ein für ein anderes Gerät berichtetes Fehlerwort (`7FF3`, invertiert `800C`) passt nicht zu dieser Formel, siehe [Protokoll-Dokument](../protocol/protocol.de.md#was-andere-berichten-aus-zweiter-hand-hier-nicht-verifiziert) |
 | `C0` im unteren Byte = Abkühlen | bei allen Stopps und beim Abkühlen nach Störung gesehen, aber nicht in jedem möglichen Zustand |
 | Ganze Volt im unteren Byte von `60xx` | nur 12/13 gesehen; die genaue Skalierung ist nicht bekannt. Die [vevor_pwm](https://github.com/kellerman/vevor_pwm)-README (verglichen im [Protokoll-Dokument](../protocol/protocol.de.md#vergleich-mit-kellermanvevor_pwm)) beschreibt das Standby-Wort als Träger der Batteriespannung, das passt |
 | Stufe = unteres Byte − `0x3F`; Abkühlen in mehreren Stufen; Fehlerbereich `0x8___` | stimmt mit derselben README überein (alle Bits invertiert); an deren Hardware nicht getestet |
@@ -40,7 +40,7 @@ Stand dieses Dokuments: Erstveröffentlichung. **Ein Heizungsgerät** (VEVOR 12 
 - Lange Läufe auf Stufe 1 und 2; Betrieb bei Kälte; Verhalten bei instabiler 12-V-Versorgung.
 - Was passiert, wenn ESP32, WLAN oder Home Assistant **während** eines Laufs ausfallen oder neu starten (erwartet: die Heizung läuft weiter, die Firmware dekodiert den Zustand nach dem nächsten B-Frame wieder; nicht getestet).
 - Langzeitzuverlässigkeit (Wochen im Betrieb, z. B. Speicher- oder Timing-Drift im ESP32).
-- Andere VEVOR-Modelle und andere Controller-Versionen.
+- Andere VEVOR-Modelle und andere Controller-Versionen. Mindestens eine berichtete Variante (CY-32, Leerlaufwort `DFxx`) würde von der Standby-Prüfung nicht erkannt.
 - `esphome compile` der englischen Variante. In der Entwicklungsumgebung konnte nur `esphome config` (Validierung) laufen. Die Logik lief auf der Hardware in der deutsch benannten Variante [`vevor-8kw-heater.de.yaml`](../../esphome/vevor-8kw-heater.de.yaml); die englische Datei benennt nur Entitäten/Texte um und ergänzt Kommentare (maschinell verglichen).
 
 ## Bekannte Schwächen des Ansatzes

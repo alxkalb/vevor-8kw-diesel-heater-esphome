@@ -85,6 +85,7 @@ Ein nicht eingestellter Abwärtswandler gibt am Ausgang eine hohe Spannung weite
 3. Die blaue Ader anzapfen (IDC-Klemme oder angelöteter Abzweig) und mit dem DATA-Knoten verbinden. Den Abgriff kurz und isoliert halten.
 4. [`esphome/vevor-8kw-heater.de.yaml`](../../esphome/vevor-8kw-heater.de.yaml) flashen. Erwartet: *Heizung Bus aktiv* = an, *Heizung Status* = Standby, *Heizung Spannung* ≈ 12–13 V, keine „unlesbar“-Meldungen in *Heizung Ereignis*.
 5. Werden Frames nicht dekodiert, [`esphome/helpers/raw-capture.yaml`](../../esphome/helpers/raw-capture.yaml) benutzen und die Rohwerte mit der [Protokollbeschreibung](../protocol/protocol.de.md) vergleichen. Das Controller-Display muss mit dem Abgriff weiterhin normal funktionieren.
+6. Loopback-Check am echten Bus: Mit dem Raw-Capture-Helfer **TX A6 idle (safe)** drücken (der harmlose Leerlauf-Frame). Der eigene Frame muss als `Received Raw`-Zeile im Log auftauchen, weil der Empfänger sieht, was der Sender sendet. Fehlt er, stimmt die Schaltung nicht. Die Entwickler eines verwandten Projekts empfehlen denselben Check.
 
 ## Hinweise
 

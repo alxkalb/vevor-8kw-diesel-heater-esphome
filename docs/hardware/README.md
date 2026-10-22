@@ -85,6 +85,7 @@ A step-down module that is not adjusted passes a high voltage to its output and 
 3. Tap the blue wire (IDC clip or a soldered branch) and connect it to the DATA node. Keep the tap short and insulated.
 4. Flash [`esphome/vevor-8kw-heater.yaml`](../../esphome/vevor-8kw-heater.yaml). Expected: *Heater Bus Active* = on, *Heater State* = Standby, *Heater Voltage* ≈ 12–13 V, no unreadable-frame events in *Heater Event*.
 5. If frames are not decoded, use [`esphome/helpers/raw-capture.yaml`](../../esphome/helpers/raw-capture.yaml) and compare the raw values with [the protocol description](../protocol/protocol.md). The controller display must still work normally with the tap in place.
+6. Loopback check on the live bus: with the raw-capture helper, press **TX A6 idle (safe)** (the harmless idle frame). Your own frame has to show up as a `Received Raw` line, because the receiver sees what the transmitter sends. If it does not, the circuit is wrong. The developers of a related project recommend the same check.
 
 ## Notes
 
