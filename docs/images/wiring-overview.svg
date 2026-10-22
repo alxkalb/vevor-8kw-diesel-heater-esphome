@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1060 520" width="1060" height="520" font-family="Helvetica, Arial, sans-serif">
+<rect width="1060" height="520" fill="#ffffff"/>
+<text x="30" y="32" font-size="20" text-anchor="start" fill="#1b1b1b" font-weight="bold">Wiring overview</text>
+<text x="30" y="54" font-size="14" text-anchor="start" fill="#666" font-weight="normal">Only the blue DATA wire of the controller cable is tapped. Everything shares GND through the 12 V supply.</text>
+<rect x="30" y="90" width="190" height="120" rx="8" fill="#fff4e5" stroke="#1b1b1b" stroke-width="2"/>
+<text x="125.0" y="118" font-size="15" text-anchor="middle" fill="#1b1b1b" font-weight="bold">12 V supply</text>
+<text x="125.0" y="140" font-size="13" text-anchor="middle" fill="#666" font-weight="normal">shared by heater</text>
+<text x="125.0" y="158" font-size="13" text-anchor="middle" fill="#666" font-weight="normal">and XL4015 (+ and −)</text>
+<rect x="330" y="90" width="220" height="120" rx="8" fill="#f4f6f8" stroke="#1b1b1b" stroke-width="2"/>
+<text x="440.0" y="118" font-size="15" text-anchor="middle" fill="#1b1b1b" font-weight="bold">Heater main unit</text>
+<text x="440.0" y="140" font-size="13" text-anchor="middle" fill="#666" font-weight="normal">VEVOR 8 kW</text>
+<text x="440.0" y="158" font-size="13" text-anchor="middle" fill="#666" font-weight="normal">12 V, own safety logic</text>
+<rect x="330" y="330" width="220" height="120" rx="8" fill="#f4f6f8" stroke="#1b1b1b" stroke-width="2"/>
+<text x="440.0" y="358" font-size="15" text-anchor="middle" fill="#1b1b1b" font-weight="bold">Controller (display)</text>
+<text x="440.0" y="380" font-size="13" text-anchor="middle" fill="#666" font-weight="normal">blue LCD, buttons,</text>
+<text x="440.0" y="398" font-size="13" text-anchor="middle" fill="#666" font-weight="normal">sends frame A</text>
+<rect x="30" y="330" width="190" height="120" rx="8" fill="#fff4e5" stroke="#1b1b1b" stroke-width="2"/>
+<text x="125.0" y="358" font-size="15" text-anchor="middle" fill="#1b1b1b" font-weight="bold">XL4015 step-down</text>
+<text x="125.0" y="380" font-size="13" text-anchor="middle" fill="#666" font-weight="normal">12 V in → 5.0 V out</text>
+<text x="125.0" y="398" font-size="13" text-anchor="middle" fill="#666" font-weight="normal">(set with multimeter)</text>
+<rect x="650" y="330" width="160" height="120" rx="8" fill="#eaf2ff" stroke="#1b1b1b" stroke-width="2"/>
+<text x="730.0" y="358" font-size="15" text-anchor="middle" fill="#1b1b1b" font-weight="bold">Level-shifter board</text>
+<text x="730.0" y="380" font-size="13" text-anchor="middle" fill="#666" font-weight="normal">Q1, Q2, R1…R5</text>
+<text x="730.0" y="398" font-size="13" text-anchor="middle" fill="#666" font-weight="normal">see schematic.svg</text>
+<rect x="850" y="330" width="170" height="120" rx="8" fill="#eaffea" stroke="#1b1b1b" stroke-width="2"/>
+<text x="935.0" y="358" font-size="15" text-anchor="middle" fill="#1b1b1b" font-weight="bold">ESP32 dev board</text>
+<text x="935.0" y="380" font-size="13" text-anchor="middle" fill="#666" font-weight="normal">GPIO16 RX, GPIO17 TX</text>
+<text x="935.0" y="398" font-size="13" text-anchor="middle" fill="#666" font-weight="normal">VIN 5 V, 3V3 → R1</text>
+<line x1="220" y1="130" x2="330" y2="130" stroke="#c62828" stroke-width="3" stroke-linecap="round"/>
+<text x="275" y="120" font-size="13" text-anchor="middle" fill="#c62828" font-weight="bold">12 V</text>
+<polyline points="125,210 125,330" fill="none" stroke="#c62828" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="133" y="270" font-size="13" text-anchor="start" fill="#c62828" font-weight="bold">12 V → XL4015</text>
+<line x1="440" y1="210" x2="440" y2="330" stroke="#1b1b1b" stroke-width="3" stroke-linecap="round"/>
+<text x="428" y="236" font-size="13" text-anchor="end" fill="#1b1b1b" font-weight="normal">controller cable (3 wires):</text>
+<text x="428" y="254" font-size="13" text-anchor="end" fill="#c62828" font-weight="normal">red 5 V – not used</text>
+<text x="428" y="272" font-size="13" text-anchor="end" fill="#1b1b1b" font-weight="normal">black GND – not used</text>
+<text x="428" y="290" font-size="13" text-anchor="end" fill="#1f5fbf" font-weight="bold">blue DATA – tapped</text>
+<polyline points="440,280 730,280 730,330" fill="none" stroke="#1f5fbf" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<circle cx="440" cy="280" r="4.5" fill="#1f5fbf"/>
+<text x="585" y="270" font-size="13" text-anchor="middle" fill="#1f5fbf" font-weight="bold">DATA (tap)</text>
+<polyline points="125,450 125,490 935,490 935,450" fill="none" stroke="#c62828" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="480" y="482" font-size="13" text-anchor="middle" fill="#c62828" font-weight="bold">5.0 V  →  ESP32 VIN and board R5 (pull-up)</text>
+<circle cx="730" cy="490" r="4.5" fill="#c62828"/>
+<line x1="730" y1="490" x2="730" y2="450" stroke="#c62828" stroke-width="3" stroke-linecap="round"/>
+<line x1="810" y1="365" x2="850" y2="365" stroke="#e07b00" stroke-width="3" stroke-linecap="round"/>
+<line x1="810" y1="395" x2="850" y2="395" stroke="#1b1b1b" stroke-width="3" stroke-linecap="round"/>
+<line x1="810" y1="425" x2="850" y2="425" stroke="#e07b00" stroke-width="3" stroke-linecap="round"/>
+<text x="830" y="358" font-size="11" text-anchor="middle" fill="#e07b00" font-weight="normal">3V3</text>
+<text x="830" y="388" font-size="11" text-anchor="middle" fill="#1b1b1b" font-weight="normal">RX</text>
+<text x="830" y="418" font-size="11" text-anchor="middle" fill="#1b1b1b" font-weight="normal">TX</text>
+<text x="30" y="515" font-size="12" text-anchor="start" fill="#666" font-weight="normal" font-style="italic">GND: heater, XL4015 and ESP32 share ground through the 12 V supply, so no extra GND wire to the controller cable is needed.</text>
+</svg>

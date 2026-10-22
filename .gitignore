@@ -1,0 +1,5 @@
+# Never commit real secrets
+secrets.yaml
+**/secrets.yaml
+.esphome/
+*.bin

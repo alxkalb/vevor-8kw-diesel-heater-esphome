@@ -1,0 +1,518 @@
+# =============================================================================
+# VEVOR 8 kW diesel air heater (blue-LCD controller) -> ESPHome / Home Assistant
+# https://github.com/alxkalb/vevor-8kw-diesel-heater-esphome        License: MIT
+#
+# What it does: listens on the single DATA wire between the heater and its display,
+# decodes state / level / supply voltage / faults and injects the same key codes the
+# display sends (on/off, level +/-). The original display and 433 MHz remote keep working.
+#
+# NOT the 4800-baud UART protocol of other Vevor projects. This heater uses a slow
+# pulse code (12 ms bit cell), see docs/protocol/protocol.md.
+#
+# Status: the logic of this file ran on the author's heater in the German-named variant
+# (vevor-8kw-heater.de.yaml). This English file only renames entities/strings and adds
+# comments. Check docs/status/status.md for what is verified and what is hypothesis.
+#
+# Required keys in secrets.yaml (see secrets.yaml.example):
+#   wifi_ssid, wifi_password, ha_api_key, ota_password, ap_password
+#
+# Pins: GPIO16 = RX (via Q2, inverted bus), GPIO17 = TX (via Q1). Hardware: docs/hardware/.
+#
+# SAFETY: this controls a fuel-burning appliance. Read docs/safety.md first. Use at your
+# own risk; no warranty. Not affiliated with VEVOR.
+# =============================================================================
+esphome:
+  name: diesel-heater
+  friendly_name: Diesel Heater
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+# --- Secrets: copy secrets.yaml.example to secrets.yaml and fill it in ----------
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: "Diesel Heater Fallback"
+    password: !secret ap_password
+
+captive_portal:
+
+logger:
+  level: INFO
+
+api:
+  encryption:
+    key: !secret ha_api_key
+
+ota:
+  - platform: esphome
+    password: !secret ota_password
+
+# --- Shared state ------------------------------------------------------------------
+# last_b                : last decoded 16-bit B frame (heater -> display), -1 = none yet
+# last_a_ms/last_rx_ms  : timestamps of the last A frame / last valid frame (bus watchdog)
+# last_tx_ms/last_a2_ms : when this ESP last sent a command / when the last A2 (on/off) was seen
+# pending_cmd/_n/_ms    : command queued by a button (0xA2/0xA3/0xA4), repeat count, queue time
+# fault_flag/err_txt    : fault state and the "E-xx (?)" hint shown in the fault status
+# was_active/inact_cnt  : "operation ended without an A2" detection (unexpected shutdown)
+# ev_n, bad_*           : event counter and counters for unreadable frames
+globals:
+  - id: pending_cmd
+    type: int
+    initial_value: '0'
+  - id: pending_n
+    type: int
+    initial_value: '0'
+  - id: pending_ms
+    type: uint32_t
+    initial_value: '0'
+  - id: last_b
+    type: int
+    initial_value: '-1'
+  - id: last_a_ms
+    type: uint32_t
+    initial_value: '0'
+  - id: last_tx_ms
+    type: uint32_t
+    initial_value: '0'
+  - id: last_rx_ms
+    type: uint32_t
+    initial_value: '0'
+  - id: last_a2_ms
+    type: uint32_t
+    initial_value: '0'
+  - id: rx_seen
+    type: bool
+    initial_value: 'false'
+  - id: bus_ok
+    type: bool
+    initial_value: 'false'
+  - id: fault_flag
+    type: bool
+    initial_value: 'false'
+  - id: was_active
+    type: bool
+    initial_value: 'false'
+  - id: inact_cnt
+    type: int
+    initial_value: '0'
+  - id: ev_n
+    type: int
+    initial_value: '0'
+  - id: bad_cnt
+    type: int
+    initial_value: '0'
+  - id: bad_len
+    type: int
+    initial_value: '0'
+  - id: bad_pub_ms
+    type: uint32_t
+    initial_value: '0'
+  - id: bad_bits
+    type: std::string
+    initial_value: '""'
+  - id: err_txt
+    type: std::string
+    initial_value: '""'
+
+# --- Entities ------------------------------------------------------------------------
+# Everyday view in Home Assistant: State, Level, Voltage, Fault Status + 4 buttons.
+# Everything marked entity_category: diagnostic is only for troubleshooting.
+sensor:
+  - platform: template
+    name: "Heater Level"
+    id: heater_level
+    accuracy_decimals: 0
+  - platform: template
+    name: "Heater Voltage"
+    id: heater_voltage
+    unit_of_measurement: "V"
+    accuracy_decimals: 0
+
+text_sensor:
+  - platform: template
+    name: "Heater State"
+    id: heater_state
+  - platform: template
+    name: "Heater Fault Status"
+    id: heater_fault_text
+  - platform: template
+    name: "Heater Raw Status"
+    id: heater_raw
+    entity_category: diagnostic
+  - platform: template
+    name: "Heater Event"
+    id: heater_event
+    entity_category: diagnostic
+
+binary_sensor:
+  - platform: template
+    name: "Heater Fan"
+    id: heater_fan
+    entity_category: diagnostic
+  - platform: template
+    name: "Heater Pump"
+    id: heater_pump
+    entity_category: diagnostic
+  - platform: template
+    name: "Heater Glow Plug"
+    id: heater_glow
+    entity_category: diagnostic
+  - platform: template
+    name: "Heater Bus Active"
+    id: heater_bus
+    device_class: connectivity
+    entity_category: diagnostic
+
+# --- 1 s housekeeping ----------------------------------------------------------------
+# Bus watchdog: no valid frame for 15 s -> "No signal", clears pending commands and
+# publishes the combined Fault Status text.
+interval:
+  - interval: 1s
+    then:
+      - lambda: |-
+          bool ok = id(rx_seen) && ((millis() - id(last_rx_ms)) < 15000);
+          if (!ok && id(bus_ok)) {
+            id(bus_ok) = false;
+            ESP_LOGW("heater", "No valid frame for 15 s");
+            id(ev).execute(std::string("No signal (no frame for 15 s)"));
+            id(last_b) = -1;
+            id(pending_cmd) = 0;
+            id(pending_n) = 0;
+            id(was_active) = false;
+            id(inact_cnt) = 0;
+            id(heater_state).publish_state("No signal");
+            id(heater_raw).publish_state("----");
+            id(heater_level).publish_state(NAN);
+            id(heater_fan).publish_state(false);
+            id(heater_pump).publish_state(false);
+            id(heater_glow).publish_state(false);
+          }
+          if (ok && !id(bus_ok)) {
+            id(bus_ok) = true;
+            ESP_LOGI("heater", "Bus active");
+            id(ev).execute(std::string("Bus active"));
+          }
+          if (id(bad_cnt) > 0 && (millis() - id(bad_pub_ms)) >= 5000) {
+            char e[96];
+            snprintf(e, sizeof(e), "unreadable x%d len=%d %s", id(bad_cnt), id(bad_len), id(bad_bits).c_str());
+            id(ev).execute(std::string(e));
+            id(bad_cnt) = 0;
+            id(bad_pub_ms) = millis();
+          }
+          id(heater_bus).publish_state(ok);
+          std::string ftxt = "No fault";
+          if (!ok) ftxt = "No signal";
+          else if (id(fault_flag)) {
+            ftxt = "Fault!";
+            if (!id(err_txt).empty()) ftxt += " " + id(err_txt);
+          }
+          if (id(heater_fault_text).state != ftxt) id(heater_fault_text).publish_state(ftxt);
+
+# --- Receiver: decodes the heater bus ------------------------------------------------
+# GPIO16 sees the bus INVERTED (Q2 pulls it low while the bus is high).
+# Bit cell = 12 ms.  "1" = bus high 8 ms + low 4 ms  -> raw  -8000, +4000
+#                    "0" = bus high 4 ms + low 8 ms  -> raw  -4000, +8000
+# Frame A = 8 bit (display -> heater), frame B = 16 bit (heater -> display), once per second.
+# idle 25 ms separates frames, filter 10 us removes glitches. See docs/protocol/.
+remote_receiver:
+  pin:
+    number: GPIO16
+    mode: INPUT
+  idle: 25ms
+  filter: 10us
+  on_raw:
+    then:
+      - lambda: |-
+          const auto &v = x;
+          if (v.size() < 16 || v[0] >= 0) return;
+          auto decode = [&](size_t nbits, int &out) -> bool {
+            if (v.size() < nbits * 2) return false;
+            int val = 0;
+            for (size_t b = 0; b < nbits; b++) {
+              int s = -v[2 * b];
+              int m = v[2 * b + 1];
+              if (s > 6500 && s < 9500 && m > 3000 && m < 5200) val = (val << 1) | 1;
+              else if (s > 3000 && s < 5200 && m > 6500 && m < 9500) val = val << 1;
+              else return false;
+            }
+            out = val;
+            return true;
+          };
+          auto bits_of = [&](size_t nsym) -> std::string {
+            std::string r;
+            for (size_t b = 0; b < nsym && 2 * b + 1 < v.size(); b++) {
+              int s = -v[2 * b];
+              int m = v[2 * b + 1];
+              if (s > 6500 && s < 9500 && m > 3000 && m < 5200) r += '1';
+              else if (s > 3000 && s < 5200 && m > 6500 && m < 9500) r += '0';
+              else r += '?';
+            }
+            return r;
+          };
+          int val = 0;
+          // >= 32 raw values = 16 symbols = B frame; shorter = A frame (8 symbols)
+          if (v.size() >= 32) {
+            if (!decode(16, val)) {
+              id(bad_cnt) += 1;
+              id(bad_len) = (int) v.size();
+              id(bad_bits) = bits_of(16);
+              return;
+            }
+            uint32_t now = millis();
+            id(last_rx_ms) = now;
+            id(rx_seen) = true;
+            int hi = (val >> 8) & 0xFF;
+            int lo = val & 0xFF;
+            // after_a: this B frame answers a display A frame; ours: it answers our own command
+            bool after_a = (now - id(last_a_ms)) < 400;
+            bool ours = (now - id(last_tx_ms)) < 700;
+            int prev = id(last_b);
+            bool changed = (val != prev);
+            id(last_b) = val;
+            // standby: hi byte 0x60, low byte = supply voltage in V (0x0C/0x0D = 12/13 V)
+            // running: low byte 0x40..0x45 = level 1..6 (0x3F + level)
+            bool now_active = (lo >= 0x40 && lo <= 0x45);
+            bool standby = (hi == 0x60 && lo >= 0x0A && lo <= 0x1F);
+            bool prev_standby = (prev >= 0 && ((prev >> 8) & 0xFF) == 0x60 && (prev & 0xFF) >= 0x0A && (prev & 0xFF) <= 0x1F);
+            bool quiet = (standby && prev_standby);
+            // fault frames have 0x8_ in the high byte; low byte & 0x3F is the error value
+            // (hypothesis: displayed E-number = value - 1, seen once: 0x09 -> E-08 empty tank)
+            bool fault_frame = ((hi & 0xF0) == 0x80);
+            int errv = lo & 0x3F;
+            bool fault_before = id(fault_flag);
+            if (fault_frame) {
+              char eb[40];
+              if (errv >= 2) snprintf(eb, sizeof(eb), "E-%02d (?)", errv - 1);
+              else snprintf(eb, sizeof(eb), "value %d", errv);
+              std::string et = eb;
+              if (!id(fault_flag)) {
+                id(fault_flag) = true;
+                ESP_LOGW("heater", "Fault frame B=%04X, value %d", val, errv);
+                id(ev).execute(std::string("FAULT: fault frame, value ") + std::to_string(errv) + " " + et);
+              }
+              id(err_txt) = et;
+              id(was_active) = false;
+              id(inact_cnt) = 0;
+            } else if (now_active) {
+              if (!id(was_active)) {
+                id(fault_flag) = false;
+                id(err_txt) = "";
+              }
+              id(was_active) = true;
+              id(inact_cnt) = 0;
+            } else if (id(was_active)) {
+              if ((now - id(last_a2_ms)) < 5000) {
+                id(was_active) = false;
+                id(inact_cnt) = 0;
+              } else {
+                id(inact_cnt) += 1;
+                if (id(inact_cnt) >= 2) {
+                  id(fault_flag) = true;
+                  id(was_active) = false;
+                  id(inact_cnt) = 0;
+                  ESP_LOGW("heater", "Heater switched off unexpectedly (operation ended without A2), B=%04X", val);
+                  id(ev).execute(std::string("FAULT: operation ended without A2"));
+                }
+              }
+            }
+            if (changed || id(fault_flag) != fault_before) {
+              if (changed && !quiet) ESP_LOGI("heater", "B=%04X", val);
+              char buf[8];
+              snprintf(buf, sizeof(buf), "%04X", val);
+              id(heater_raw).publish_state(buf);
+              // hi byte bits (hypothesis, consistent with all captures): 0x08 fan, 0x04 pump, 0x01 glow plug
+              bool fan = (hi & 0x08) != 0;
+              bool pump = (hi & 0x04) != 0;
+              bool glow = (hi & 0x01) != 0;
+              std::string st = "unknown";
+              if (fault_frame) st = ((lo & 0xC0) == 0xC0) ? "Fault: cooling down" : "Fault (standby)";
+              else if (standby) st = id(fault_flag) ? "Standby (after fault)" : "Standby";
+              else if (lo == 0xC0) st = id(fault_flag) ? "Cooling down (unexpected)" : "Cooling down";
+              else if (now_active) {
+                if (hi == 0x60) st = "Start requested";
+                else if (glow && pump) st = "Ignition";
+                else if (glow) st = "Preheating";
+                else if (pump) st = "Running";
+                else if (fan) st = "Fan start-up";
+                else st = "Active";
+              } else if (id(fault_flag)) st = "unknown (fault)";
+              id(heater_state).publish_state(st);
+              id(heater_fan).publish_state(fan);
+              id(heater_pump).publish_state(pump);
+              id(heater_glow).publish_state(glow);
+              if (now_active) id(heater_level).publish_state(lo - 0x3F);
+              else id(heater_level).publish_state(NAN);
+              if (standby) id(heater_voltage).publish_state(lo);
+              if (changed && !quiet) id(ev).execute(st + " (B=" + buf + ")");
+            }
+            // send a queued command in the quiet window after a display A frame + our B reply slot
+            if (id(pending_cmd) != 0 && after_a && !ours) {
+              int c = id(pending_cmd);
+              if (now - id(pending_ms) > 8000) {
+                id(pending_cmd) = 0;
+                id(pending_n) = 0;
+              } else {
+                bool ok = true;
+                if (c == 0xA3) ok = (lo >= 0x40 && lo < 0x45);
+                if (c == 0xA4) ok = (lo > 0x40 && lo <= 0x45);
+                if (ok) {
+                  id(last_tx_ms) = now;
+                  if (c == 0xA2) id(last_a2_ms) = now;
+                  id(send_cmd).execute(c);
+                }
+                id(pending_n) -= 1;
+                if (!ok || id(pending_n) <= 0) {
+                  id(pending_cmd) = 0;
+                  id(pending_n) = 0;
+                }
+              }
+            }
+          } else {
+            if (v.size() > 20) {
+              id(bad_cnt) += 1;
+              id(bad_len) = (int) v.size();
+              id(bad_bits) = bits_of(16);
+              return;
+            }
+            if (!decode(8, val) || (val & 0xF0) != 0xA0) {
+              id(bad_cnt) += 1;
+              id(bad_len) = (int) v.size();
+              id(bad_bits) = bits_of(8);
+              return;
+            }
+            uint32_t now = millis();
+            id(last_rx_ms) = now;
+            id(rx_seen) = true;
+            id(last_a_ms) = now;
+            if (val == 0xA2) id(last_a2_ms) = now;
+            // A6 = idle frame every second; anything else is a key press (A2/A3/A4) or our own echo
+            if (val != 0xA6) {
+              ESP_LOGI("heater", "A=%02X (extra frame: key press or own echo)", val);
+              char e[24];
+              snprintf(e, sizeof(e), "A=%02X", val);
+              id(ev).execute(std::string(e));
+            }
+          }
+
+# --- Transmitter: injects display commands via Q1 ------------------------------------
+# GPIO17 high = Q1 conducts = bus pulled low (through R3). Raw sign is therefore the
+# same as in the receiver: negative = bus high, positive = bus low.
+remote_transmitter:
+  pin: GPIO17
+  carrier_duty_percent: 100%
+
+# --- Scripts ---------------------------------------------------------------------------
+# ev       : writes the "Event" diagnostic text with a running number.
+# send_cmd : waits 100 ms after the regular B frame, then sends a 30 ms start pulse and
+#            the 8 command bits (MSB first). Never sends while the display is talking.
+script:
+  - id: ev
+    mode: queued
+    max_runs: 12
+    parameters:
+      msg: string
+    then:
+      - lambda: |-
+          id(ev_n) += 1;
+          char nb[16];
+          snprintf(nb, sizeof(nb), "  [#%d]", id(ev_n));
+          id(heater_event).publish_state(msg + std::string(nb));
+  - id: send_cmd
+    mode: single
+    parameters:
+      cmd: int
+    then:
+      - delay: 100ms
+      - remote_transmitter.transmit_raw:
+          code: !lambda |-
+            std::vector<int32_t> c;
+            c.push_back(30000);
+            for (int i = 7; i >= 0; i--) {
+              if ((cmd >> i) & 1) { c.push_back(-8000); c.push_back(4000); }
+              else { c.push_back(-4000); c.push_back(8000); }
+            }
+            return c;
+      - lambda: |-
+          ESP_LOGI("heater", "TX A=%02X sent", cmd);
+          char e[24];
+          snprintf(e, sizeof(e), "TX A=%02X", cmd);
+          id(ev).execute(std::string(e));
+
+# --- Buttons ---------------------------------------------------------------------------
+# Buttons only QUEUE a command. It is sent in the next free window after a display frame
+# and only if the current heater state allows it:
+#   ON   : only from standby or from the "fault standby" (B hi byte 0x80)  -> A2
+#   OFF  : only while running (B low byte 0x40..0x45)                      -> A2
+#   +/-  : only while running, levels 1..6; up to 6 queued presses          -> A3 / A4
+button:
+  - platform: template
+    name: "Heater ON"
+    on_press:
+      - lambda: |-
+          int b = id(last_b);
+          int hi = (b >> 8) & 0xFF;
+          int lo = b & 0xFF;
+          bool standby = (hi == 0x60 && lo >= 0x0A && lo <= 0x1F);
+          bool fault_standby = (hi == 0x80 && (lo & 0xC0) == 0);
+          if (b >= 0 && (standby || fault_standby)) {
+            id(pending_cmd) = 0xA2;
+            id(pending_n) = 1;
+            id(pending_ms) = millis();
+          } else {
+            ESP_LOGW("heater", "ON ignored, heater not in standby (B=%04X)", b);
+            id(ev).execute(std::string("ON button ignored"));
+          }
+  - platform: template
+    name: "Heater OFF"
+    on_press:
+      - lambda: |-
+          int b = id(last_b);
+          int lo = b & 0xFF;
+          if (b >= 0 && lo >= 0x40 && lo <= 0x45) {
+            id(pending_cmd) = 0xA2;
+            id(pending_n) = 1;
+            id(pending_ms) = millis();
+          } else {
+            ESP_LOGW("heater", "OFF ignored, heater not running (B=%04X)", b);
+            id(ev).execute(std::string("OFF button ignored"));
+          }
+  - platform: template
+    name: "Heater Level Up"
+    on_press:
+      - lambda: |-
+          int b = id(last_b);
+          int lo = b & 0xFF;
+          if (b >= 0 && lo >= 0x40 && lo < 0x45) {
+            if (id(pending_cmd) == 0xA3) {
+              if (id(pending_n) < 6) id(pending_n) += 1;
+            } else {
+              id(pending_cmd) = 0xA3;
+              id(pending_n) = 1;
+            }
+            id(pending_ms) = millis();
+          } else {
+            ESP_LOGW("heater", "Level up ignored (B=%04X)", b);
+            id(ev).execute(std::string("Level up button ignored"));
+          }
+  - platform: template
+    name: "Heater Level Down"
+    on_press:
+      - lambda: |-
+          int b = id(last_b);
+          int lo = b & 0xFF;
+          if (b >= 0 && lo > 0x40 && lo <= 0x45) {
+            if (id(pending_cmd) == 0xA4) {
+              if (id(pending_n) < 6) id(pending_n) += 1;
+            } else {
+              id(pending_cmd) = 0xA4;
+              id(pending_n) = 1;
+            }
+            id(pending_ms) = millis();
+          } else {
+            ESP_LOGW("heater", "Level down ignored (B=%04X)", b);
+            id(ev).execute(std::string("Level down button ignored"));
+          }

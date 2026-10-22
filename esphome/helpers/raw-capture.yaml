@@ -1,0 +1,78 @@
+# Raw bus capture + manual command test (for developers / other heater models).
+#
+# remote_receiver dumps every pulse train as "Received Raw: ..." in the log. Use it to
+# record your own heater and compare with docs/protocol/protocol.md.
+#
+# Raw sign convention (receiver on GPIO16 sees the bus INVERTED through Q2):
+#   negative = bus high, positive = bus low
+#   "1" = -8000, +4000      "0" = -4000, +8000      bit cell = 12 ms
+#
+# The three buttons transmit complete 8-bit A frames. TX uses GPIO17 (Q1 pulls the bus low).
+# Every code starts with 30000 = a 30 ms start pulse (bus held low) that the heater needs.
+# SAFETY: A2 toggles the heater (start / stop). A3/A4 change the level. Only press them when
+# the heater and its surroundings are safe to start. A6 is the harmless idle frame.
+#
+# Note: a single frame sent like this does not wait for the display's own frames. The main
+# firmware (vevor-8kw-heater.yaml) sends only in the free window; here, collisions with the
+# display's own frame are possible and you may need to press again.
+
+esphome:
+  name: raw-capture
+  friendly_name: Raw Capture
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: "Raw Capture Fallback"
+    password: !secret ap_password
+
+captive_portal:
+
+logger:
+  level: DEBUG
+
+api:
+  encryption:
+    key: !secret ha_api_key
+
+ota:
+  - platform: esphome
+    password: !secret ota_password
+
+remote_receiver:
+  pin:
+    number: GPIO16
+    mode: INPUT
+  dump: raw
+  idle: 25ms
+  filter: 10us
+
+remote_transmitter:
+  pin: GPIO17
+  carrier_duty_percent: 100%
+
+button:
+  # A6 = 1010 0110 = idle frame (no effect on the heater)
+  - platform: template
+    name: "TX A6 idle (safe)"
+    on_press:
+      - remote_transmitter.transmit_raw:
+          code: [30000, -8000, 4000, -4000, 8000, -8000, 4000, -4000, 8000, -4000, 8000, -8000, 4000, -8000, 4000, -4000, 8000]
+  # A2 = 1010 0010 = on/off toggle
+  - platform: template
+    name: "TX A2 toggle"
+    on_press:
+      - remote_transmitter.transmit_raw:
+          code: [30000, -8000, 4000, -4000, 8000, -8000, 4000, -4000, 8000, -4000, 8000, -4000, 8000, -8000, 4000, -4000, 8000]
+  # A3 = 1010 0011 = level up
+  - platform: template
+    name: "TX A3 level up"
+    on_press:
+      - remote_transmitter.transmit_raw:
+          code: [30000, -8000, 4000, -4000, 8000, -8000, 4000, -4000, 8000, -4000, 8000, -4000, 8000, -8000, 4000, -8000, 4000]

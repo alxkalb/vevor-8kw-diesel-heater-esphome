@@ -1,0 +1,69 @@
+# Board self-test: checks the level shifter (Q1 + Q2) WITHOUT the heater bus.
+#
+# Preconditions: heater display/bus wire NOT connected to the board (DATA free), board powered
+# from the XL4015 (5 V) with ESP 3V3 connected to R1.
+#
+# How it works: GPIO17 (TX) switches Q1, which pulls DATA low through R3. Q2 sees DATA and
+# reports it on GPIO16 (RX). Because R5 holds DATA at 5 V, Q2 normally pulls GPIO16 low, so:
+#
+#   idle          : "TEST RX Q2" = OFF
+#   during pulse  : "TEST RX Q2" = ON  (DATA pulled low -> Q2 off -> GPIO16 pulled up to 3V3)
+#
+# Results:
+#   OFF at idle, ON during the pulse -> Q1 and Q2 both work (expected)
+#   ON permanently, pulse changes nothing -> Q2 does not switch (pinout / solder joint)
+#   OFF permanently, pulse changes nothing -> Q1 does not switch (pinout / solder joint)
+#
+# This replaces the heater firmware temporarily. Keep the pulse short.
+
+esphome:
+  name: loopback-test
+  friendly_name: Loopback Test
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: "Loopback Test Fallback"
+    password: !secret ap_password
+
+captive_portal:
+
+logger:
+  level: DEBUG
+
+api:
+  encryption:
+    key: !secret ha_api_key
+
+ota:
+  - platform: esphome
+    password: !secret ota_password
+
+switch:
+  - platform: gpio
+    pin: GPIO17
+    id: test_tx
+    name: "TEST TX Q1"
+    restore_mode: ALWAYS_OFF
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO16
+      mode: INPUT
+    id: test_rx
+    name: "TEST RX Q2"
+
+button:
+  - platform: template
+    name: "TEST Pulse 1s"
+    on_press:
+      - switch.turn_on: test_tx
+      - delay: 1s
+      - switch.turn_off: test_tx

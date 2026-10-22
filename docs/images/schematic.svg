@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1060 800" width="1060" height="800" font-family="Helvetica, Arial, sans-serif">
+<rect width="1060" height="800" fill="#ffffff"/>
+<text x="30" y="32" font-size="20" text-anchor="start" fill="#1b1b1b" font-weight="bold">Level shifter between the heater DATA wire and the ESP32</text>
+<text x="30" y="54" font-size="14" text-anchor="start" fill="#666" font-weight="normal">VEVOR 8 kW diesel heater (blue-LCD controller)  -  ESPHome board</text>
+<text x="30" y="84" font-size="13" text-anchor="start" fill="#c62828" font-weight="bold">+5 V  (XL4015 output, set to 5.0 V)</text>
+<line x1="30" y1="92" x2="960" y2="92" stroke="#c62828" stroke-width="2" stroke-linecap="round"/>
+<circle cx="200" cy="92" r="4.5" fill="#c62828"/>
+<text x="30" y="266" font-size="14" text-anchor="start" fill="#1f5fbf" font-weight="bold">DATA</text>
+<text x="30" y="282" font-size="12" text-anchor="start" fill="#666" font-weight="normal">(blue wire of the</text>
+<text x="30" y="297" font-size="12" text-anchor="start" fill="#666" font-weight="normal">controller cable)</text>
+<circle cx="34" cy="310" r="4.5" fill="#fff" stroke="#1f5fbf" stroke-width="2"/>
+<line x1="39" y1="310" x2="200" y2="310" stroke="#1f5fbf" stroke-width="2" stroke-linecap="round"/>
+<line x1="200" y1="92" x2="200" y2="310" stroke="#1f5fbf" stroke-width="2" stroke-linecap="round"/>
+<rect x="192" y="166" width="16" height="48" rx="0" fill="#fff" stroke="#1b1b1b" stroke-width="2"/>
+<text x="184" y="187" font-size="14" text-anchor="end" fill="#1b1b1b" font-weight="bold">R5</text>
+<text x="184" y="204" font-size="13" text-anchor="end" fill="#666" font-weight="normal">10 kΩ</text>
+<circle cx="200" cy="310" r="4.5" fill="#1f5fbf"/>
+<line x1="420" y1="310" x2="468" y2="310" stroke="#1b1b1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="468" y1="286" x2="468" y2="334" stroke="#1b1b1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="480" y1="284" x2="480" y2="296" stroke="#1b1b1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="480" y1="302" x2="480" y2="318" stroke="#1b1b1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="480" y1="324" x2="480" y2="336" stroke="#1b1b1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="480" y1="290" x2="506" y2="290" stroke="#1b1b1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="506" y1="290" x2="506" y2="260" stroke="#1b1b1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="480" y1="330" x2="506" y2="330" stroke="#1b1b1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="506" y1="330" x2="506" y2="360" stroke="#1b1b1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="480" y1="310" x2="506" y2="310" stroke="#1b1b1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="506" y1="310" x2="506" y2="330" stroke="#1b1b1b" stroke-width="2" stroke-linecap="round"/>
+<polygon points="483,310 493,305 493,315" fill="#1b1b1b"/>
+<line x1="200" y1="310" x2="420" y2="310" stroke="#1f5fbf" stroke-width="2" stroke-linecap="round"/>
+<text x="424" y="302" font-size="12" text-anchor="start" fill="#666" font-weight="normal">G</text>
+<text x="492" y="274" font-size="12" text-anchor="end" fill="#666" font-weight="normal">D</text>
+<text x="492" y="356" font-size="12" text-anchor="end" fill="#666" font-weight="normal">S</text>
+<line x1="506" y1="360" x2="506" y2="370" stroke="#1b1b1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="493" y1="370" x2="519" y2="370" stroke="#1b1b1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="498" y1="375" x2="514" y2="375" stroke="#1b1b1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="503" y1="380" x2="509" y2="380" stroke="#1b1b1b" stroke-width="2" stroke-linecap="round"/>
+<text x="530" y="316" font-size="14" text-anchor="start" fill="#1b1b1b" font-weight="bold">Q2  BS170</text>
+<text x="530" y="333" font-size="12" text-anchor="start" fill="#666" font-weight="normal">receive: DATA high → GPIO16 low (inverted)</text>
+<line x1="506" y1="140" x2="506" y2="260" stroke="#1b1b1b" stroke-width="2" stroke-linecap="round"/>
+<rect x="498" y="176" width="16" height="48" rx="0" fill="#fff" stroke="#1b1b1b" stroke-width="2"/>
+<text x="522" y="197" font-size="14" text-anchor="start" fill="#1b1b1b" font-weight="bold">R1</text>
+<text x="522" y="214" font-size="13" text-anchor="start" fill="#666" font-weight="normal">1 kΩ</text>
+<circle cx="506" cy="140" r="4.5" fill="#1b1b1b"/>
+<circle cx="506" cy="260" r="4.5" fill="#1b1b1b"/>
+<line x1="506" y1="260" x2="780" y2="260" stroke="#1b1b1b" stroke-width="2" stroke-linecap="round"/>
+<rect x="542" y="252" width="48" height="16" rx="0" fill="#fff" stroke="#1b1b1b" stroke-width="2"/>
+<text x="566" y="244" font-size="14" text-anchor="middle" fill="#1b1b1b" font-weight="bold">R2  100 Ω</text>
+<line x1="506" y1="140" x2="780" y2="140" stroke="#e07b00" stroke-width="2" stroke-linecap="round"/>
+<text x="520" y="132" font-size="13" text-anchor="start" fill="#e07b00" font-weight="bold">3V3 (ESP32 3V3 pin)</text>
+<line x1="200" y1="310" x2="200" y2="470" stroke="#1f5fbf" stroke-width="2" stroke-linecap="round"/>
+<rect x="192" y="386" width="16" height="48" rx="0" fill="#fff" stroke="#1b1b1b" stroke-width="2"/>
+<text x="184" y="407" font-size="14" text-anchor="end" fill="#1b1b1b" font-weight="bold">R3</text>
+<text x="184" y="424" font-size="13" text-anchor="end" fill="#666" font-weight="normal">1 kΩ</text>
+<line x1="660" y1="530" x2="612" y2="530" stroke="#1b1b1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="612" y1="506" x2="612" y2="554" stroke="#1b1b1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="600" y1="504" x2="600" y2="516" stroke="#1b1b1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="600" y1="522" x2="600" y2="538" stroke="#1b1b1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="600" y1="544" x2="600" y2="556" stroke="#1b1b1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="600" y1="510" x2="574" y2="510" stroke="#1b1b1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="574" y1="510" x2="574" y2="480" stroke="#1b1b1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="600" y1="550" x2="574" y2="550" stroke="#1b1b1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="574" y1="550" x2="574" y2="580" stroke="#1b1b1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="600" y1="530" x2="574" y2="530" stroke="#1b1b1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="574" y1="530" x2="574" y2="550" stroke="#1b1b1b" stroke-width="2" stroke-linecap="round"/>
+<polygon points="597,530 587,525 587,535" fill="#1b1b1b"/>
+<polyline points="200,470 200,480 574,480" fill="none" stroke="#1f5fbf" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="584" y="484" font-size="12" text-anchor="start" fill="#666" font-weight="normal">D</text>
+<text x="584" y="578" font-size="12" text-anchor="start" fill="#666" font-weight="normal">S</text>
+<text x="650" y="522" font-size="12" text-anchor="end" fill="#666" font-weight="normal">G</text>
+<line x1="574" y1="580" x2="574" y2="590" stroke="#1b1b1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="561" y1="590" x2="587" y2="590" stroke="#1b1b1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="566" y1="595" x2="582" y2="595" stroke="#1b1b1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="571" y1="600" x2="577" y2="600" stroke="#1b1b1b" stroke-width="2" stroke-linecap="round"/>
+<text x="440" y="640" font-size="14" text-anchor="start" fill="#1b1b1b" font-weight="bold">Q1  BS170</text>
+<text x="440" y="657" font-size="12" text-anchor="start" fill="#666" font-weight="normal">transmit: GPIO17 high → DATA pulled low (via R3)</text>
+<line x1="660" y1="530" x2="780" y2="530" stroke="#1b1b1b" stroke-width="2" stroke-linecap="round"/>
+<rect x="696" y="522" width="48" height="16" rx="0" fill="#fff" stroke="#1b1b1b" stroke-width="2"/>
+<text x="720" y="514" font-size="14" text-anchor="middle" fill="#1b1b1b" font-weight="bold">R4  100 Ω</text>
+<rect x="780" y="112" width="220" height="562" rx="6" fill="#f4f6f8" stroke="#1b1b1b" stroke-width="2"/>
+<text x="890.0" y="646" font-size="15" text-anchor="middle" fill="#1b1b1b" font-weight="bold">ESP32 WROOM-32D</text>
+<text x="890.0" y="664" font-size="13" text-anchor="middle" fill="#666" font-weight="normal">dev board</text>
+<text x="792" y="144" font-size="13" text-anchor="start" fill="#1b1b1b" font-weight="normal">3V3</text>
+<text x="792" y="264" font-size="13" text-anchor="start" fill="#1b1b1b" font-weight="normal">GPIO16  (RX)</text>
+<text x="792" y="534" font-size="13" text-anchor="start" fill="#1b1b1b" font-weight="normal">GPIO17  (TX)</text>
+<text x="792" y="604" font-size="13" text-anchor="start" fill="#1b1b1b" font-weight="normal">GND</text>
+<circle cx="780" cy="140" r="4.5" fill="#1b1b1b"/>
+<circle cx="780" cy="260" r="4.5" fill="#1b1b1b"/>
+<circle cx="780" cy="530" r="4.5" fill="#1b1b1b"/>
+<line x1="960" y1="92" x2="960" y2="112" stroke="#c62828" stroke-width="2" stroke-linecap="round"/>
+<text x="950" y="134" font-size="13" text-anchor="end" fill="#c62828" font-weight="normal">VIN (5 V)</text>
+<circle cx="960" cy="92" r="4.5" fill="#c62828"/>
+<circle cx="960" cy="112" r="4.5" fill="#c62828"/>
+<polyline points="780,600 730,600" fill="none" stroke="#1b1b1b" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+<line x1="730" y1="600" x2="730" y2="610" stroke="#1b1b1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="717" y1="610" x2="743" y2="610" stroke="#1b1b1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="722" y1="615" x2="738" y2="615" stroke="#1b1b1b" stroke-width="2" stroke-linecap="round"/>
+<line x1="727" y1="620" x2="733" y2="620" stroke="#1b1b1b" stroke-width="2" stroke-linecap="round"/>
+<circle cx="780" cy="600" r="4.5" fill="#1b1b1b"/>
+<text x="30" y="700" font-size="13" text-anchor="start" fill="#1b1b1b" font-weight="normal">BS170 (TO-92): flat side towards you, pins left to right = Drain – Gate – Source.</text>
+<text x="30" y="720" font-size="13" text-anchor="start" fill="#1b1b1b" font-weight="normal">DATA idles at about 4.85 V on the tested unit (multimeter); measure yours first. ESP32 pins are NOT 5 V tolerant: never connect DATA to a GPIO directly.</text>
+<text x="30" y="740" font-size="13" text-anchor="start" fill="#1b1b1b" font-weight="normal">All GND symbols are one net: XL4015 GND, ESP32 GND, power supply GND shared with the heater (controller GND wire not used).</text>
+<text x="30" y="760" font-size="13" text-anchor="start" fill="#1b1b1b" font-weight="normal">No voltage regulator on the board: the ESP32 dev board provides 3V3 (used for R1). Controller 5 V (red wire) is not used.</text>
+<text x="30" y="780" font-size="12" text-anchor="start" fill="#666" font-weight="normal" font-style="italic">Own drawing for this project. Same principle as other open-drain level shifters, but a different parts list and no regulator.</text>
+</svg>
