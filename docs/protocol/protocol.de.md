@@ -12,7 +12,7 @@ Andere Open-Source-Projekte für Vevor-Heizungen (zum Beispiel die in der Haupt-
 
 - Eine Leitung, Open-Drain mit Pull-up, Ruhe = high. Teilnehmer ziehen den Bus nach unten.
 - Über den Pegelwandler sieht der ESP32 den Bus **invertiert**: Bus high = GPIO16 low.
-- An diesem Gerät mit dem Multimeter an der DATA-Ader gemessen: Ruhe etwa **4,85 V**. Solange Frames auf dem Bus laufen, flackert die Anzeige zwischen 4,85 V und etwa 2,35 V. Ein Multimeter löst die 4/8-ms-Pulse nicht auf und zeigt einen Mittelwert, 2,35 V ist also kein logischer Pegel. Der echte Low-Pegel wurde nicht separat gemessen. Andere Projekte berichten für diese Art Heizung von etwa 4 V und einem verrauschten Bus (3,3–6 V).
+- An diesem Gerät mit dem Multimeter an der DATA-Ader gemessen: Ruhe etwa **4,85 V**. Solange Frames auf dem Bus laufen, flackert die Anzeige zwischen 4,85 V und etwa 2,35 V. Beide Werte waren mit und ohne angeschlossene Pegelwandler-Platine gleich. Ein Multimeter löst die 4/8-ms-Pulse nicht auf und zeigt einen Mittelwert, 2,35 V ist also kein logischer Pegel. Der echte Low-Pegel wurde nicht separat gemessen. Andere Projekte berichten für diese Art Heizung von etwa 4 V und einem verrauschten Bus (3,3–6 V).
 
 ## Bitkodierung
 

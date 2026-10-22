@@ -1,5 +1,7 @@
 # Project status: what is verified, what is a guess
 
+🇩🇪 [Deutsche Version](status.de.md)
+
 State of this document: first publication. **One heater unit** (VEVOR 12 V, "8 kW", blue-LCD controller) with one ESP32-WROOM-32D, ESPHome 2026.9.1 and 2026.10.0, Home Assistant 2026.10.
 
 ## Verified on the hardware
@@ -18,7 +20,7 @@ State of this document: first publication. **One heater unit** (VEVOR 12 V, "8 k
 | Fault frames for "empty tank" | `8CC9` → `89C9` → `88C9` → `8009` |
 | **ON from the fault standby (`8009`)** | clears the fault and starts normally; after OFF the heater cooled down and returned to the normal standby |
 | Controller display and 433 MHz remote still work with the tap in place | `A2` from both seen on the bus |
-| Bus voltage with a multimeter on the DATA wire | idle about 4.85 V; during traffic the reading flickers between 4.85 V and about 2.35 V (a multimeter averages the pulse train, so 2.35 V is a mean value, not a measured logic level) |
+| Bus voltage with a multimeter on the DATA wire | idle about 4.85 V; during traffic the reading flickers between 4.85 V and about 2.35 V, with and without the level-shifter board connected (so R5 does not change the idle level noticeably). A multimeter averages the pulse train, so 2.35 V is a mean value, not a measured logic level |
 | Entity cleanup (most entities marked *diagnostic*) | flashed and running cleanly |
 
 ## Hypotheses (consistent with the captures, but not proven)

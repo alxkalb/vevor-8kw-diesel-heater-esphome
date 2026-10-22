@@ -12,7 +12,7 @@ Other open-source projects for Vevor heaters (for example the ones listed in the
 
 - One wire, open drain with a pull-up, idle = high. Devices pull the bus low.
 - Through the level shifter the ESP32 sees the bus **inverted**: bus high = GPIO16 low.
-- Measured on this unit with a multimeter on the DATA wire: idle about **4.85 V**. While frames are on the bus the reading flickers between 4.85 V and about 2.35 V. A multimeter cannot resolve the 4/8 ms pulses and shows a mean value, so 2.35 V is not a logic level. The real low level was not measured separately. Other projects report about 4 V and a noisy bus (3.3–6 V) for this kind of heater.
+- Measured on this unit with a multimeter on the DATA wire: idle about **4.85 V**. While frames are on the bus the reading flickers between 4.85 V and about 2.35 V. Both values were the same with and without the level-shifter board connected. A multimeter cannot resolve the 4/8 ms pulses and shows a mean value, so 2.35 V is not a logic level. The real low level was not measured separately. Other projects report about 4 V and a noisy bus (3.3–6 V) for this kind of heater.
 
 ## Bit coding
 

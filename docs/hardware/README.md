@@ -81,7 +81,7 @@ A step-down module that is not adjusted passes a high voltage to its output and 
 ## Step 4: connect to the heater bus
 
 1. Heater **in standby**, controller connected as before.
-2. Measure the DC voltage between the blue wire and GND with the multimeter. On the author's unit: about **4.85 V** idle, and while frames are on the bus the multimeter flickers down to about 2.35 V (it averages the 4/8 ms pulses, so this is a mean value, not the logic low level). Other projects report about 4 V and a noisy bus for this kind of heater. **If you see more than about 6 V, stop** and do not connect the ESP32.
+2. Measure the DC voltage between the blue wire and GND with the multimeter. On the author's unit: about **4.85 V** idle, and while frames are on the bus the multimeter flickers down to about 2.35 V, the same with and without this board connected (it averages the 4/8 ms pulses, so this is a mean value, not the logic low level). Other projects report about 4 V and a noisy bus for this kind of heater. **If you see more than about 6 V, stop** and do not connect the ESP32.
 3. Tap the blue wire (IDC clip or a soldered branch) and connect it to the DATA node. Keep the tap short and insulated.
 4. Flash [`esphome/vevor-8kw-heater.yaml`](../../esphome/vevor-8kw-heater.yaml). Expected: *Heater Bus Active* = on, *Heater State* = Standby, *Heater Voltage* ≈ 12–13 V, no unreadable-frame events in *Heater Event*.
 5. If frames are not decoded, use [`esphome/helpers/raw-capture.yaml`](../../esphome/helpers/raw-capture.yaml) and compare the raw values with [the protocol description](../protocol/protocol.md). The controller display must still work normally with the tap in place.

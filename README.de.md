@@ -4,7 +4,7 @@
 
 Lokale Steuerung einer **VEVOR-12-V-Diesel-Luftheizung (8 kW, Kabel-Controller mit blauem LCD)** mit ESP32 und ESPHome: Zustand, Stufe und Versorgungsspannung in Home Assistant sehen, Heizung ein- und ausschalten und die Leistungsstufe (1–6) ändern. Keine Cloud, kein Bluetooth. Der ESP greift die einzelne Datenleitung zwischen Controller und Heizung ab und „drückt die Tasten“ für dich. Der Original-Controller und die Fernbedienung funktionieren weiter.
 
-> ⚠️ **Das steuert ein Gerät, das Brennstoff verbrennt. Lies [docs/safety.md](docs/safety.md) (Englisch), bevor du etwas baust oder startest.** Nutzung auf eigenes Risiko. Dieses Projekt steht in keiner Verbindung zu VEVOR.
+> ⚠️ **Das steuert ein Gerät, das Brennstoff verbrennt. Lies [docs/safety.de.md](docs/safety.de.md), bevor du etwas baust oder startest.** Nutzung auf eigenes Risiko. Dieses Projekt steht in keiner Verbindung zu VEVOR.
 
 ![Schaltplan Pegelwandler](docs/images/schematic.svg)
 
@@ -86,7 +86,7 @@ Die englische Variante hat dieselbe Logik mit den Namen aus der [englischen READ
 
 ## Status
 
-Was verifiziert, was Hypothese und was ungetestet ist: **[docs/status/status.md](docs/status/status.md)** (Englisch). Kurz: Start, Stopp, Stufe ±, Lesen von Zustand/Stufe/Spannung, die Störung „Tank leer“ und das Löschen der Störung mit EIN wurden an einem Gerät beobachtet. Andere Fehlercodes, Langzeitverhalten und andere Heizungsmodelle sind ungetestet.
+Was verifiziert, was Hypothese und was ungetestet ist: **[docs/status/status.de.md](docs/status/status.de.md)**. Kurz: Start, Stopp, Stufe ±, Lesen von Zustand/Stufe/Spannung, die Störung „Tank leer“ und das Löschen der Störung mit EIN wurden an einem Gerät beobachtet. Andere Fehlercodes, Langzeitverhalten und andere Heizungsmodelle sind ungetestet.
 
 ## Bekannte Einschränkungen
 

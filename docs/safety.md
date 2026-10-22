@@ -1,5 +1,7 @@
 # Safety notes
 
+🇩🇪 [Deutsche Version](safety.de.md)
+
 This project connects a microcontroller to a **diesel-burning heater**. Mistakes can cause fire, carbon monoxide poisoning, fuel leaks, or damage to the heater. You build and use it **at your own risk**. The software and documentation come without any warranty (see [LICENSE](../LICENSE)). The author is not a certified heater installer. This project is not affiliated with VEVOR and has not been approved by them.
 
 ## Before you run the heater
