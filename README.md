@@ -18,6 +18,8 @@ Probably **only if it looks like this one**. It was built and tested on exactly 
 
 This heater does **not** speak the 4800-baud (or 25000-baud) UART protocol that other open-source projects document. It uses a slow pulse code with 12 ms bit cells, see [docs/protocol/protocol.md](docs/protocol/protocol.md) ([Deutsch](docs/protocol/protocol.de.md)). If your heater is different, the raw-capture helper in [`esphome/helpers/`](esphome/helpers/raw-capture.yaml) shows within minutes whether the same protocol is in use. Reports for other models are very welcome (see *Contributing*).
 
+The same family of pulse-code heaters is described by others: [kellerman/vevor_pwm](https://github.com/kellerman/vevor_pwm) documents 8-bit commands and 16-bit status words with a ~12 ms cell for "Vevor PWM" heaters (ZM8001 and a Sunster 8 kW are mentioned in the [Home Assistant forum thread](https://community.home-assistant.io/t/vevor-diesel-heater-control-development-in-progress/832159) and in [zatakon/esphome-vevor-heater#2](https://github.com/zatakon/esphome-vevor-heater/issues/2)). Their values match this project's when all bits are inverted, see [the comparison](docs/protocol/protocol.md#comparison-with-kellermanvevor_pwm). This firmware was developed independently and has **not** been tested on those heaters.
+
 ## Features
 
 - State: standby, start requested, fan start-up, preheating, ignition, running, cooling down, fault
@@ -99,6 +101,7 @@ Reports are welcome, especially: other models, other fault codes (post the raw `
 
 ## Credits and related projects
 
+- [kellerman/vevor_pwm](https://github.com/kellerman/vevor_pwm): ESPHome library for the same pulse-code ("PWM") protocol on other Vevor heaters, published earlier. This project was worked out independently on a different unit and I only found it afterwards. No code is shared: this firmware uses the standard ESPHome `remote_receiver`/`remote_transmitter` and adds fault frames, key frames for level up/down and the safety logic.
 - [zatakon/vevor_heater_control](https://github.com/zatakon/vevor_heater_control) and [zatakon/esphome-vevor-heater](https://github.com/zatakon/esphome-vevor-heater): the starting point for this project (open-drain bus, level-shifter principle with two transistors). They target a different Vevor controller and protocol (4800 baud UART); the firmware here shares no code with them.
 - [Ray Jones: Afterburner / BlueOwl](https://gitlab.com/mrjones.id.au/bluetoothheater): the well-known open-source work on the half-duplex bus of Chinese diesel heaters.
 - The schematic in this repository is a new drawing with a different parts list (no voltage regulator on the board, BS170 instead of 2N7002).

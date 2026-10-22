@@ -31,7 +31,8 @@ Stand dieses Dokuments: Erstveröffentlichung. **Ein Heizungsgerät** (VEVOR 12 
 | Namen der Startphasen (Anlauf, Vorglühen, Zünden, Läuft) | aus dem Bitmuster oben abgeleitet |
 | E-Nummer = (unteres Byte & `0x3F`) − 1 | ein Datenpunkt (E08 ↔ Wert 9). Andere als `E-xx (?)` gezeigte Nummern sind Vermutungen |
 | `C0` im unteren Byte = Abkühlen | bei allen Stopps und beim Abkühlen nach Störung gesehen, aber nicht in jedem möglichen Zustand |
-| Ganze Volt im unteren Byte von `60xx` | nur 12/13 gesehen; die genaue Skalierung ist nicht bekannt |
+| Ganze Volt im unteren Byte von `60xx` | nur 12/13 gesehen; die genaue Skalierung ist nicht bekannt. Die [vevor_pwm](https://github.com/kellerman/vevor_pwm)-README (verglichen im [Protokoll-Dokument](../protocol/protocol.de.md#vergleich-mit-kellermanvevor_pwm)) beschreibt das Standby-Wort als Träger der Batteriespannung, das passt |
+| Stufe = unteres Byte − `0x3F`; Abkühlen in mehreren Stufen; Fehlerbereich `0x8___` | stimmt mit derselben README überein (alle Bits invertiert); an deren Hardware nicht getestet |
 
 ## Noch nicht getestet
 

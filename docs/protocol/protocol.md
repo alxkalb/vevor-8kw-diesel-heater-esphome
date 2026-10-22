@@ -112,6 +112,26 @@ An alternative fault detection exists in the firmware: when an operation ends (l
 
 (Complete frame, two bits per line for readability. In the real `code:` list everything is one flat list of numbers.)
 
+## Comparison with kellerman/vevor_pwm
+
+[kellerman/vevor_pwm](https://github.com/kellerman/vevor_pwm) (published earlier) describes the same kind of bus for "Vevor PWM" heaters: 8-bit commands to the heater, 16-bit status words from the heater, a 30 ms start pulse, about 12 ms per bit. Comparing its README with the frames seen here, **the values match when every bit is inverted** (their polarity convention is the opposite of the one used in this document). The table is my own comparison from their README. It was not tested on their hardware, and their library was not run here.
+
+| This project (as decoded here) | vevor_pwm README | Meaning there |
+|---|---|---|
+| A frame `A6` | command `0x59` (default bits) | idle |
+| A frame `A2` | `0x5D` (bit 2 set) | power on/off |
+| A frame `A4` | `0x5B` (bit 1 set) | "power level toggle" (cycles 6 → 1 → 6; here: level down) |
+| A frame `A3` | `0x5C` | not in their table (here: level up) |
+| `600C` … `6009`, `600F` | `0x9FF3` … `0x9FF6`, `0x9FF0` | idle/standby with battery voltage (here: 12 V … 9 V, 15 V) |
+| `6845`, `6945`, `6D45` | `0x97BA`, `0x96BA`, `0x92BA` | startup sequence (their values are for level 6; here: fan, preheating, ignition) |
+| `6C40` … `6C45` | `0x93BF` … `0x93BA` | active, last nibble `F`…`A` = level 1…6 |
+| `6CC0` | `0x933F` | shutdown in progress |
+| `69C0` | `0x963F` | "clearing flame" |
+| `68C0` | `0x973F` | cooldown |
+| `0x8000` … `0x8FFF` | `0x7000` … `0x7FFF` | error states |
+
+What this adds to the picture: the cool-down seen here as one phase (low byte `C0`) is a sequence of three named stages there, and an independent source describes the level nibble and the supply voltage the same way. What it does not settle: the fan/pump/glow-plug bit meanings and the E-number hint stay hypotheses here. Their README also lists a "ready" status word (`0xFA6C`) that was not seen in the captures of this project.
+
 ## Differences to the UART projects
 
 | | this heater | zatakon/esphome-vevor-heater (XMZ-D2) |

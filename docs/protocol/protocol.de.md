@@ -112,6 +112,26 @@ Zusätzlich gibt es in der Firmware eine zweite Störungserkennung: Endet ein Be
 
 (Vollständiger Frame, zur Lesbarkeit zwei Bits pro Zeile. In der echten `code:`-Liste ist alles eine flache Zahlenliste.)
 
+## Vergleich mit kellerman/vevor_pwm
+
+[kellerman/vevor_pwm](https://github.com/kellerman/vevor_pwm) (früher veröffentlicht) beschreibt denselben Bus-Typ für „Vevor PWM“-Heizungen: 8-Bit-Befehle an die Heizung, 16-Bit-Statuswörter von der Heizung, 30 ms Startpuls, etwa 12 ms pro Bit. Vergleicht man seine README mit den hier gesehenen Frames, **stimmen die Werte überein, wenn man jedes Bit invertiert** (seine Polaritätskonvention ist das Gegenteil der in diesem Dokument benutzten). Die Tabelle ist mein eigener Vergleich anhand seiner README. Sie wurde nicht an seiner Hardware getestet, und seine Bibliothek wurde hier nicht ausgeführt.
+
+| Dieses Projekt (hier dekodiert) | vevor_pwm-README | Bedeutung dort |
+|---|---|---|
+| A-Frame `A6` | Befehl `0x59` (Standardbits) | Leerlauf |
+| A-Frame `A2` | `0x5D` (Bit 2 gesetzt) | Ein/Aus |
+| A-Frame `A4` | `0x5B` (Bit 1 gesetzt) | „Power level toggle“ (zyklisch 6 → 1 → 6; hier: Stufe runter) |
+| A-Frame `A3` | `0x5C` | nicht in seiner Tabelle (hier: Stufe hoch) |
+| `600C` … `6009`, `600F` | `0x9FF3` … `0x9FF6`, `0x9FF0` | Leerlauf/Standby mit Batteriespannung (hier: 12 V … 9 V, 15 V) |
+| `6845`, `6945`, `6D45` | `0x97BA`, `0x96BA`, `0x92BA` | Startsequenz (seine Werte gelten für Stufe 6; hier: Lüfter, Vorglühen, Zündung) |
+| `6C40` … `6C45` | `0x93BF` … `0x93BA` | aktiv, letztes Nibble `F`…`A` = Stufe 1…6 |
+| `6CC0` | `0x933F` | Abschaltung läuft |
+| `69C0` | `0x963F` | „Clearing flame“ (Flamme löschen) |
+| `68C0` | `0x973F` | Abkühlen |
+| `0x8000` … `0x8FFF` | `0x7000` … `0x7FFF` | Fehlerzustände |
+
+Was das zum Gesamtbild beiträgt: Das Abkühlen, das hier als eine Phase gesehen wird (unteres Byte `C0`), ist dort eine Folge aus drei benannten Stufen, und eine unabhängige Quelle beschreibt das Stufen-Nibble und die Versorgungsspannung genauso. Was es nicht klärt: Die Bedeutung der Lüfter-/Pumpen-/Glühkerzen-Bits und der Hinweis zur E-Nummer bleiben Hypothesen. Seine README nennt außerdem ein „Ready“-Statuswort (`0xFA6C`), das in den Captures dieses Projekts nicht gesehen wurde.
+
 ## Unterschiede zu den UART-Projekten
 
 | | diese Heizung | zatakon/esphome-vevor-heater (XMZ-D2) |

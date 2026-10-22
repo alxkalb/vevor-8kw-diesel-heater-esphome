@@ -18,6 +18,8 @@ Wahrscheinlich **nur, wenn sie so aussieht wie diese**. Gebaut und getestet wurd
 
 Diese Heizung spricht **nicht** das 4800-Baud-UART-Protokoll (oder 25000 Baud), das andere Open-Source-Projekte beschreiben. Sie benutzt einen langsamen Pulscode mit 12-ms-Bitzellen, siehe [docs/protocol/protocol.de.md](docs/protocol/protocol.de.md). Bei einer anderen Heizung zeigt der Raw-Capture-Helfer in [`esphome/helpers/`](esphome/helpers/raw-capture.yaml) in wenigen Minuten, ob dasselbe Protokoll läuft. Berichte zu anderen Modellen sind sehr willkommen (siehe *Mitmachen*).
 
+Die gleiche Familie von Pulscode-Heizungen beschreiben auch andere: [kellerman/vevor_pwm](https://github.com/kellerman/vevor_pwm) dokumentiert 8-Bit-Befehle und 16-Bit-Statuswörter mit etwa 12-ms-Zelle für „Vevor PWM“-Heizungen (im [Home-Assistant-Forum](https://community.home-assistant.io/t/vevor-diesel-heater-control-development-in-progress/832159) und in [zatakon/esphome-vevor-heater#2](https://github.com/zatakon/esphome-vevor-heater/issues/2) werden ZM8001 und eine Sunster 8 kW genannt). Ihre Werte stimmen mit denen dieses Projekts überein, wenn man alle Bits invertiert, siehe [Vergleich](docs/protocol/protocol.de.md#vergleich-mit-kellermanvevor_pwm). Diese Firmware wurde unabhängig entwickelt und an diesen Heizungen **nicht** getestet.
+
 ## Funktionen
 
 - Zustand: Standby, Start angefordert, Lüfter-Anlauf, Vorglühen, Zündung, Läuft, Abkühlen, Störung
@@ -101,6 +103,7 @@ Berichte sind willkommen, vor allem: andere Modelle, andere Fehlercodes (die roh
 
 ## Quellen und verwandte Projekte
 
+- [kellerman/vevor_pwm](https://github.com/kellerman/vevor_pwm): ESPHome-Bibliothek für dasselbe Pulscode-Protokoll („PWM“) an anderen Vevor-Heizungen, früher veröffentlicht. Dieses Projekt wurde unabhängig an einem anderen Gerät erarbeitet, ich habe es erst danach gefunden. Es wird kein Code geteilt: Diese Firmware nutzt die Standard-ESPHome-Komponenten `remote_receiver`/`remote_transmitter` und ergänzt Fehler-Frames, Tasten-Frames für Stufe hoch/runter und die Sicherheitslogik.
 - [zatakon/vevor_heater_control](https://github.com/zatakon/vevor_heater_control) und [zatakon/esphome-vevor-heater](https://github.com/zatakon/esphome-vevor-heater): Ausgangspunkt dieses Projekts (Open-Drain-Bus, Pegelwandler-Prinzip mit zwei Transistoren). Sie zielen auf einen anderen Vevor-Controller und ein anderes Protokoll (4800 Baud UART); die Firmware hier teilt keinen Code mit ihnen.
 - [Ray Jones: Afterburner / BlueOwl](https://gitlab.com/mrjones.id.au/bluetoothheater): die bekannte Open-Source-Arbeit am Halbduplex-Bus chinesischer Dieselheizungen.
 - Der Schaltplan in diesem Repository ist eine neue Zeichnung mit anderer Teileliste (kein Spannungsregler auf der Platine, BS170 statt 2N7002).

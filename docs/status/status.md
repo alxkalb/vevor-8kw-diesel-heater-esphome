@@ -31,7 +31,8 @@ State of this document: first publication. **One heater unit** (VEVOR 12 V, "8 k
 | Names of the start phases (Fan start-up, Preheating, Ignition, Running) | derived from the bit pattern above |
 | E-number = (low byte & `0x3F`) − 1 | one data point (E08 ↔ value 9). Other numbers shown as `E-xx (?)` are guesses |
 | `C0` in the low byte = cool-down | seen in all stops and in the fault cool-down, but not with every possible state |
-| Integer volts in the low byte of `60xx` | only 12/13 seen; the exact scaling is not known |
+| Integer volts in the low byte of `60xx` | only 12/13 seen; the exact scaling is not known. The [vevor_pwm](https://github.com/kellerman/vevor_pwm) README (compared in the [protocol doc](../protocol/protocol.md#comparison-with-kellermanvevor_pwm)) describes the standby word as carrying the battery voltage, which fits |
+| Level = low byte − `0x3F`; cool-down in several stages; error range `0x8___` | consistent with the same README (all bits inverted); not tested on their hardware |
 
 ## Not tested yet
 
